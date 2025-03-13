@@ -1,16 +1,28 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
-#include "ui_sudokuGameQt.h"
+#include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 class sudokuGameQt : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    sudokuGameQt(QWidget *parent = nullptr);
+    explicit sudokuGameQt(QWidget* parent = nullptr);
     ~sudokuGameQt();
 
+private slots:
+    void onDrawBoardClicked();
+    void onSolveBoardClicked();
+
 private:
-    Ui::sudokuGameQtClass ui;
+    QPushButton* button1;
+    QPushButton* button2;
+    QLabel* labelOutput;
+    QVBoxLayout* layout;
+    QHBoxLayout* buttonLayout;
+    QWidget* centralWidget;
 };

@@ -1,10 +1,12 @@
 #include "sudokuGameQt.h"
-#include <QtWidgets/QApplication>
+#include <QApplication>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    QApplication a(argc, argv);
-    sudokuGameQt w;
-    w.show();
-    return a.exec();
+    QApplication app(argc, argv);
+
+    sudokuGameQt window;
+    window.show();
+
+    return app.exec();
 }
