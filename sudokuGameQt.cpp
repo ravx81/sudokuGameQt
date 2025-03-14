@@ -32,8 +32,8 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     QLineEdit* cell1 = new QLineEdit;
     QLineEdit* cell2 = new QLineEdit;
 
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 3; col++) {
+    for (int row = 0; row < 81; row++) {
+        for (int col = 0; col < 81; col++) {
             QLineEdit* cell = new QLineEdit;
 
             cell->setFixedSize(40, 40);
