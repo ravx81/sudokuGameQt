@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLineEdit>
 
 class sudokuGameQt : public QMainWindow
 {

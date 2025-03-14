@@ -29,6 +29,19 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     button1 = new QPushButton("Draw board", this);
     button2 = new QPushButton("Solve board", this);
 
+    QLineEdit* cell1 = new QLineEdit;
+    QLineEdit* cell2 = new QLineEdit;
+
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            QLineEdit* cell = new QLineEdit;
+
+            cell->setFixedSize(40, 40);
+            cell->setAlignment(Qt::AlignCenter);
+            layout->addWidget(cell);
+        }
+    }
+
     buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(button1);
     buttonLayout->addWidget(button2);
