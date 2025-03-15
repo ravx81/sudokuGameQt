@@ -42,9 +42,6 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     tableWidget->setShowGrid(false);
 
-    tableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    tableWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     tableWidget->viewport()->setAutoFillBackground(false);
 
     tableWidget->setStyleSheet(
