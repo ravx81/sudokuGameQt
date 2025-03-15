@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QTableWidgetItem>
+#include <QTableWidget>
 
 class sudokuGameQt : public QMainWindow
 {
@@ -26,4 +28,7 @@ private:
     QVBoxLayout* layout;
     QHBoxLayout* buttonLayout;
     QWidget* centralWidget;
+
+    // Dodajemy wskaünik na QTableWidget
+    QTableWidget* tableWidget;
 };
