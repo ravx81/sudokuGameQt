@@ -3,6 +3,37 @@
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QTableWidgetItem>
+#include <QStyledItemDelegate>
+#include <QLineEdit>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+
+
+class SingleCharDelegate : public QStyledItemDelegate
+{
+public:
+    SingleCharDelegate(QObject* parent = nullptr)
+        : QStyledItemDelegate(parent)
+    {
+    }
+
+    QWidget* createEditor(QWidget* parent,
+        const QStyleOptionViewItem& option,
+        const QModelIndex& index) const override
+    {
+        // Create a line edit with a single-character limit
+        QLineEdit* editor = new QLineEdit(parent);
+        editor->setMaxLength(1);
+
+        // Optionally, if you want to allow only digits 1-9, use a validator:
+        QRegularExpression re("[1-9]");  // digits 1 through 9
+        QValidator* validator = new QRegularExpressionValidator(re, editor);
+        editor->setValidator(validator);
+
+        return editor;
+    }
+};
+
 
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
@@ -27,6 +58,9 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     layout->setSpacing(0);
 
     tableWidget = new QTableWidget(9, 9, this);
+    tableWidget->setItemDelegate(new SingleCharDelegate(this));
+
+
 
     tableWidget->horizontalHeader()->setVisible(false);
     tableWidget->verticalHeader()->setVisible(false);
@@ -58,6 +92,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             QTableWidgetItem* item = new QTableWidgetItem("");
             item->setTextAlignment(Qt::AlignCenter);
             tableWidget->setItem(row, col, item);
+            
         }
     }
     int totalWidth = (cellSize * 9) + tableWidget->frameWidth() * 2;
@@ -68,7 +103,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     centerLayout->setContentsMargins(0, 0, 0, 0);
     centerLayout->addStretch();         
     centerLayout->addWidget(tableWidget);
-    centerLayout->addStretch();         
+    centerLayout->addStretch(); 
 
    
     layout->addStretch();
