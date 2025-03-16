@@ -38,13 +38,13 @@ public:
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
 {
-    setFixedSize(800, 600);
+    setFixedSize(900, 650);
 
     setStyleSheet(
         "QMainWindow {"
         "    background-image: url(background.png);"
         "    background-repeat: no-repeat;"
-        "    background-position: center;"
+        "    background-position: top-center;"
         "    background-size: cover;"
         "}"
     );
@@ -54,7 +54,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     setCentralWidget(centralWidget);
 
     layout = new QVBoxLayout(centralWidget);
-    layout->setContentsMargins(0, 15, 0, 0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
     tableWidget = new QTableWidget(9, 9, this);
@@ -68,7 +68,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-    int cellSize = 49;
+    int cellSize = 47;
     tableWidget->horizontalHeader()->setDefaultSectionSize(cellSize);
     tableWidget->verticalHeader()->setDefaultSectionSize(cellSize);
 
@@ -106,9 +106,9 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     centerLayout->addStretch(); 
 
    
-    layout->addStretch();
+    //layout->addStretch();
     layout->addLayout(centerLayout);
-    layout->addStretch();
+    //layout->addStretch();
 
    
     button1 = new QPushButton("Draw board", this);
@@ -130,7 +130,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     QGridLayout* keypadLayout = new QGridLayout;
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 1; i < 10; i++) {
         QPushButton* button = new QPushButton(QString::number(i), this);
         button->setFixedSize(50, 50);
 
@@ -142,9 +142,9 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             });
         int row = (i - 1) / 3;
         int col = (i - 1) % 3;
-        keypadLayout->addWidget(button, row, col);
-        layout->addLayout(keypadLayout);
+        keypadLayout->addWidget(button, row, col);       
     }
+    layout->addLayout(keypadLayout);
  
 }
 
