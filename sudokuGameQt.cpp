@@ -144,8 +144,18 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         int col = (i - 1) % 3;
         keypadLayout->addWidget(button, row, col);       
     }
-    layout->addLayout(keypadLayout);
  
+    QPushButton* clearButton = new QPushButton("Clear", this);
+    connect(clearButton, &QPushButton::clicked, [this]() {
+        QTableWidgetItem* currentItem = tableWidget->currentItem();
+        if (currentItem) {
+            currentItem->setText("");
+        }
+    });
+    keypadLayout->addWidget(clearButton, 3, 0, 1, 3);
+
+    layout->addLayout(keypadLayout);
+
 }
 
 sudokuGameQt::~sudokuGameQt()
