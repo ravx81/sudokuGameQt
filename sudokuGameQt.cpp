@@ -125,6 +125,27 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
    
     connect(button1, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
     connect(button2, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
+
+
+
+    QGridLayout* keypadLayout = new QGridLayout;
+
+    for (int i = 0; i < 9; i++) {
+        QPushButton* button = new QPushButton(QString::number(i), this);
+        button->setFixedSize(50, 50);
+
+        connect(button, &QPushButton::clicked, [this, i]() {
+            QTableWidgetItem* currentItem = tableWidget->currentItem();
+            if (currentItem) {
+                currentItem->setText(QString::number(i));
+            }
+            });
+        int row = (i - 1) / 3;
+        int col = (i - 1) % 3;
+        keypadLayout->addWidget(button, row, col);
+        layout->addLayout(keypadLayout);
+    }
+ 
 }
 
 sudokuGameQt::~sudokuGameQt()
