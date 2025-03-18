@@ -21,6 +21,7 @@ private slots:
     void onDrawBoardClicked();
     void onSolveBoardClicked();
 
+
 private:
     QPushButton* button1;
     QPushButton* button2;
@@ -28,7 +29,6 @@ private:
     QVBoxLayout* layout;
     QHBoxLayout* buttonLayout;
     QWidget* centralWidget;
-
-    // Dodajemy wskaünik na QTableWidget
     QTableWidget* tableWidget;
+    int board[9][9];
 };

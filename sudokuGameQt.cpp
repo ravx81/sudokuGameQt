@@ -1,4 +1,5 @@
 #include "sudokuGameQt.h"
+#include "functions.h"
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QHBoxLayout>
@@ -106,9 +107,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     centerLayout->addStretch(); 
 
    
-    //layout->addStretch();
     layout->addLayout(centerLayout);
-    //layout->addStretch();
 
    
     button1 = new QPushButton("Draw board", this);
@@ -165,8 +164,23 @@ sudokuGameQt::~sudokuGameQt()
 
 void sudokuGameQt::onDrawBoardClicked()
 {
-    
+    int board[9][9] = { 0 };
+
+    fillBoard(board);
+    prepareBoard(board, 40);
+
+    for (int row = 0; row < 9; row++) {
+        for (int col = 0; col < 9; col++) {
+            if (board[row][col] == 0) {
+                tableWidget->item(row, col)->setText("");
+            }
+            else {
+                tableWidget->item(row, col)->setText(QString::number(board[row][col]));
+            }
+        }
+    }
 }
+
 
 void sudokuGameQt::onSolveBoardClicked()
 {
