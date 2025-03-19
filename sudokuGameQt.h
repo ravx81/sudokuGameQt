@@ -8,7 +8,7 @@
 #include <QLineEdit>
 #include <QTableWidgetItem>
 #include <QTableWidget>
-
+#include <iostream>
 class sudokuGameQt : public QMainWindow
 {
     Q_OBJECT

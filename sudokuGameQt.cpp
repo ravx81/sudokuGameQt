@@ -184,5 +184,28 @@ void sudokuGameQt::onDrawBoardClicked()
 
 void sudokuGameQt::onSolveBoardClicked()
 {
-   
+    int board[9][9];
+
+    for (int row = 0; row < 9; row++) {
+        for (int col = 0; col < 9; col++) {
+            QString cellText = tableWidget->item(row, col)->text();
+            if (!cellText.isEmpty()) {
+                board[row][col] = cellText.toInt();
+            }
+            else {
+                board[row][col] = 0;
+            }
+        }
+    }
+    if (solveBoard(board)) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                tableWidget->item(row, col)->setText(QString::number(board[row][col]));
+            }
+        }
+    }
+    else {
+        std::cout << "Problems";
+    }
+    
 }
