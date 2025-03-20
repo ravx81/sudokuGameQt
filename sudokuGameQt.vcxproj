@@ -96,12 +96,12 @@
     <QtUic Include="sudokuGameQt.ui" />
     <QtMoc Include="sudokuGameQt.h" />
     <ClCompile Include="functions.cpp" />
-    <ClCompile Include="sudokuGameQt.cpp">
+    <QtMoc Include="sudokuGameQt.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
-    </ClCompile>
+    </QtMoc>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
