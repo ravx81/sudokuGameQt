@@ -32,6 +32,9 @@
     <QtMoc Include="sudokuGameQt.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtRcc Include="resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

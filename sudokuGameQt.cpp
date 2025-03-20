@@ -52,14 +52,19 @@ private slots:
 private:
     QWidget* centralWidget;
     QTableWidget* tableWidget;
-    QPushButton* button1;
-    QPushButton* button2;
+    QPushButton* buttonSolve;
+    QPushButton* buttonUndo;
+    QPushButton* buttonClear;
+    QPushButton* buttonHint;
+    QPushButton* buttonNewGame;
+    int board[9][9];
 };
 
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
 {
-    setFixedSize(800, 600);
+
+    setFixedSize(850, 600);
     setStyleSheet(
         "QMainWindow {"
         "    background-image: url(background.png);"
@@ -124,13 +129,33 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     rightLayout->setSpacing(10);
 
     
-    button1 = new QPushButton("Draw board", this);
-    button2 = new QPushButton("Solve board", this);
-    button1->setFixedSize(100, 60);
-    button2->setFixedSize(100, 60);
+    buttonClear = new QPushButton("Clear", this);
+    buttonSolve = new QPushButton("Solve", this);
+    buttonUndo = new QPushButton("Undo", this);
+    buttonNewGame = new QPushButton("New-Game", this);
+    buttonHint = new QPushButton("Hint", this);
+
+    buttonClear->setFixedSize(60, 60);
+    buttonSolve->setFixedSize(60, 60);
+    buttonUndo->setFixedSize(60, 60);
+    buttonNewGame->setFixedSize(60, 60);
+    buttonHint->setFixedSize(60, 60);
+
+    connect(buttonClear, &QPushButton::clicked, [this]() {
+        QTableWidgetItem* currentItem = tableWidget->currentItem();
+        if (currentItem) {
+            currentItem->setText("");
+        }
+        });
+
     QHBoxLayout* buttonLayout = new QHBoxLayout;
-    buttonLayout->addWidget(button1);
-    buttonLayout->addWidget(button2);
+    buttonLayout->addWidget(buttonClear);
+    buttonLayout->addWidget(buttonSolve);
+    buttonLayout->addWidget(buttonUndo);
+    buttonLayout->addWidget(buttonNewGame);
+    buttonLayout->addWidget(buttonHint);
+
+
     rightLayout->addLayout(buttonLayout);
 
     
@@ -138,6 +163,12 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     for (int i = 1; i < 10; i++) {
         QPushButton* button = new QPushButton(QString::number(i), this);
         button->setFixedSize(50, 50);
+        button->setStyleSheet(
+            "QPushButton { "
+            "   background-color: green;"
+            "}"
+        );
+
         connect(button, &QPushButton::clicked, [this, i]() {
             QTableWidgetItem* currentItem = tableWidget->currentItem();
             if (currentItem) {
@@ -149,28 +180,24 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         keypadLayout->addWidget(button, row, col);
     }
 
-    
-    QPushButton* clearButton = new QPushButton("Clear", this);
-    clearButton->setFixedSize(100, 60);
-    connect(clearButton, &QPushButton::clicked, [this]() {
-        QTableWidgetItem* currentItem = tableWidget->currentItem();
-        if (currentItem) {
-            currentItem->setText("");
-        }
-        });
-    keypadLayout->addWidget(clearButton, 3, 0, 1, 3, Qt::AlignCenter);
-
     rightLayout->addLayout(keypadLayout);
 
     
     rightLayout->addStretch();
-
     
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
+    //button1->setFlat(true);
+    buttonHint->setStyleSheet(
+        "QPushButton { "
+        "    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;"
+        "}"
+    );
 
-    
-    connect(button1, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
-    connect(button2, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
+
+    connect(buttonUndo, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
+    connect(buttonSolve, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
+
+    onDrawBoardClicked();
 }
 
 sudokuGameQt::~sudokuGameQt()

@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <QtRcc Include="resources.qrc" />
     <QtRcc Include="sudokuGameQt.qrc" />
     <QtUic Include="sudokuGameQt.ui" />
     <QtMoc Include="sudokuGameQt.h" />

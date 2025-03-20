@@ -23,12 +23,12 @@ private slots:
 
 
 private:
-    QPushButton* button1;
-    QPushButton* button2;
-    QLabel* labelOutput;
-    QVBoxLayout* layout;
-    QHBoxLayout* buttonLayout;
     QWidget* centralWidget;
     QTableWidget* tableWidget;
+    QPushButton* buttonSolve;
+    QPushButton* buttonUndo;
+    QPushButton* buttonClear;
+    QPushButton* buttonHint;
+    QPushButton* buttonNewGame;
     int board[9][9];
 };
