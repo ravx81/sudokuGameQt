@@ -12,6 +12,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QWidget>
+#include <qlabel.h>
 #include <iostream>
 
 #include "functions.h" 
@@ -59,6 +60,7 @@ private:
     QPushButton* buttonNewGame;
     int solutionBoard[9][9];
     int board[9][9];
+    int error;
 };
 
 sudokuGameQt::sudokuGameQt(QWidget* parent)
@@ -162,12 +164,6 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         "}"
     );
 
-    connect(buttonClear, &QPushButton::clicked, [this]() {
-        QTableWidgetItem* currentItem = tableWidget->currentItem();
-        if (currentItem) {
-            currentItem->setText("");
-        }
-        });
     connect(buttonNewGame, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
     connect(buttonSolve, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
 
@@ -184,6 +180,10 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     
     QGridLayout* keypadLayout = new QGridLayout;
+
+    QLabel* errorLabel = new QLabel("0", this);
+    errorLabel->setStyleSheet("font-size: 18pt; color: red;");
+
     for (int i = 1; i < 10; i++) {
         QPushButton* button = new QPushButton(QString::number(i), this);
         button->setFixedSize(50, 50);
@@ -192,8 +192,8 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             "   background-color: green;"
             "}"
         );
-
-        connect(button, &QPushButton::clicked, [this, i]() {
+    
+        connect(button, &QPushButton::clicked, [this, i, errorLabel]() {
             QTableWidgetItem* currentItem = tableWidget->currentItem();
             if (currentItem) {
                 int row = tableWidget->currentRow();
@@ -201,10 +201,14 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
                 if (solutionBoard[row][col] == i) {
                     board[row][col] = i;
+                    currentItem->setForeground(QBrush(Qt::darkGreen));
                     currentItem->setText(QString::number(i));
                 }
                 else {
-                    currentItem->setText("Chuj");
+                    currentItem->setForeground(QBrush(Qt::red));
+                    currentItem->setText(QString::number(i));
+                    error++;
+                    errorLabel->setText(QString::number(error));
                 }
             }
             });
@@ -212,8 +216,20 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         int col = (i - 1) % 3;
         keypadLayout->addWidget(button, row, col);
     }
-
+    connect(buttonClear, &QPushButton::clicked, [this, errorLabel]() {
+        QTableWidgetItem* currentItem = tableWidget->currentItem();
+        if (currentItem) {
+            QBrush brush = currentItem->foreground();
+            QColor color = brush.color();
+            if (color == Qt::red) {
+                error--;
+                errorLabel->setText(QString::number(error));
+            }
+            currentItem->setText("");
+        }
+        });
     rightLayout->addLayout(keypadLayout);
+    rightLayout->addWidget(errorLabel);
     rightLayout->addStretch();
     
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
@@ -227,6 +243,7 @@ sudokuGameQt::~sudokuGameQt()
 
 void sudokuGameQt::onDrawBoardClicked()
 {
+    error = 0;
     int tempBoard[9][9] = { 0 };
 
     fillBoard(tempBoard);
@@ -250,7 +267,7 @@ void sudokuGameQt::onDrawBoardClicked()
 void sudokuGameQt::onSolveBoardClicked()
 {
     int board[9][9];
-
+    
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
             QString cellText = tableWidget->item(row, col)->text();

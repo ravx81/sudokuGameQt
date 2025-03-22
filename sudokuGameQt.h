@@ -32,4 +32,5 @@ private:
     QPushButton* buttonNewGame;
     int board[9][9];
     int solutionBoard[9][9];
+    int error;
 };
