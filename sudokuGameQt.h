@@ -9,6 +9,13 @@
 #include <QTableWidgetItem>
 #include <QTableWidget>
 #include <iostream>
+#include <vector>
+#include <qcolor.h>
+struct Move {
+    int row, col, oldValue, newValue;
+    QColor color;
+};
+
 class sudokuGameQt : public QMainWindow
 {
     Q_OBJECT
@@ -25,7 +32,6 @@ private slots:
 private:
     QWidget* centralWidget;
     QTableWidget* tableWidget;
-    QPushButton* buttonSolve;
     QPushButton* buttonUndo;
     QPushButton* buttonClear;
     QPushButton* buttonHint;
@@ -33,4 +39,6 @@ private:
     int board[9][9];
     int solutionBoard[9][9];
     int error;
+    std::vector<Move> moves;
+
 };

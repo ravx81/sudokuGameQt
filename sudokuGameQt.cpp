@@ -14,7 +14,7 @@
 #include <QWidget>
 #include <qlabel.h>
 #include <iostream>
-
+#include <vector>
 #include "functions.h" 
 
 class SingleCharDelegate : public QStyledItemDelegate
@@ -38,7 +38,10 @@ public:
     }
 };
 
-
+struct Move {
+    int row, col, oldValue, newValue;
+    QColor color;
+};
 class sudokuGameQt : public QMainWindow
 {
     Q_OBJECT
@@ -53,7 +56,6 @@ private slots:
 private:
     QWidget* centralWidget;
     QTableWidget* tableWidget;
-    QPushButton* buttonSolve;
     QPushButton* buttonUndo;
     QPushButton* buttonClear;
     QPushButton* buttonHint;
@@ -61,8 +63,8 @@ private:
     int solutionBoard[9][9];
     int board[9][9];
     int error;
+    std::vector<Move> moves;
 };
-
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
 {
@@ -135,13 +137,11 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     
     buttonClear = new QPushButton("", this);
-    buttonSolve = new QPushButton("Solve", this);
     buttonUndo = new QPushButton("", this);
     buttonNewGame = new QPushButton("New-Game", this);
     buttonHint = new QPushButton("", this);
 
     buttonClear->setFixedSize(60, 70);
-    buttonSolve->setFixedSize(60, 70);
     buttonUndo->setFixedSize(60, 70);
     buttonNewGame->setFixedSize(60, 70);
     buttonHint->setFixedSize(60, 70);
@@ -165,12 +165,10 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     );
 
     connect(buttonNewGame, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
-    connect(buttonSolve, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
 
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(buttonClear);
-    buttonLayout->addWidget(buttonSolve);
     buttonLayout->addWidget(buttonUndo);
     buttonLayout->addWidget(buttonNewGame);
     buttonLayout->addWidget(buttonHint);
@@ -198,14 +196,21 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             if (currentItem) {
                 int row = tableWidget->currentRow();
                 int col = tableWidget->currentColumn();
-
+                int oldValue = board[row][col];
+                              
                 if (solutionBoard[row][col] == i) {
                     board[row][col] = i;
-                    currentItem->setForeground(QBrush(Qt::darkGreen));
+                    QColor color = Qt::darkGreen;
+                    Move move{ row, col,oldValue, i, color };
+                    moves.push_back(move);
+                    currentItem->setForeground(QBrush(color));
                     currentItem->setText(QString::number(i));
                 }
                 else {
-                    currentItem->setForeground(QBrush(Qt::red));
+                    QColor color = Qt::red;
+                    Move move{ row, col,oldValue, i, color };
+                    moves.push_back(move);
+                    currentItem->setForeground(QBrush(color));
                     currentItem->setText(QString::number(i));
                     error++;
                     errorLabel->setText(QString::number(error));
@@ -219,14 +224,50 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     connect(buttonClear, &QPushButton::clicked, [this, errorLabel]() {
         QTableWidgetItem* currentItem = tableWidget->currentItem();
         if (currentItem) {
+            int row = tableWidget->currentRow();
+            int col = tableWidget->currentColumn();
+            int oldValue = board[row][col];
             QBrush brush = currentItem->foreground();
             QColor color = brush.color();
+            Move move{ row, col,oldValue, 0, color };
+    
             if (color == Qt::red) {
                 error--;
+                board[row][col] = 0;
+                currentItem->setText("");
                 errorLabel->setText(QString::number(error));
+                moves.push_back(move);
             }
-            currentItem->setText("");
+            else if (color == Qt::darkGreen) {
+                board[row][col] = 0;
+                currentItem->setText("");
+                moves.push_back(move);
+
+            }
         }
+        });
+    connect(buttonUndo, &QPushButton::clicked, [this, errorLabel]() {
+        if (moves.empty()) {
+            return;
+        }
+
+        Move lastMove = moves.back();
+        moves.pop_back();
+
+        board[lastMove.row][lastMove.col] = lastMove.oldValue;
+        if (lastMove.color == Qt::red) {
+            error--;
+            errorLabel->setText(QString::number(error));
+        }
+  
+
+        if (lastMove.oldValue == 0){
+            tableWidget->item(lastMove.row, lastMove.col)->setText("");
+        }
+        else {
+            tableWidget->item(lastMove.row, lastMove.col)->setText(QString::number(lastMove.oldValue));
+        }
+    
         });
     rightLayout->addLayout(keypadLayout);
     rightLayout->addWidget(errorLabel);
@@ -290,3 +331,4 @@ void sudokuGameQt::onSolveBoardClicked()
         std::cout << "Problems";
     }
 }
+
