@@ -1,3 +1,7 @@
 <RCC>
-    <qresource prefix="/images"/>
+    <qresource prefix="/images">
+        <file>hint.png</file>
+        <file>rubber.png</file>
+        <file>undo.png</file>
+    </qresource>
 </RCC>

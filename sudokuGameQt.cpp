@@ -57,6 +57,7 @@ private:
     QPushButton* buttonClear;
     QPushButton* buttonHint;
     QPushButton* buttonNewGame;
+    int solutionBoard[9][9];
     int board[9][9];
 };
 
@@ -107,11 +108,13 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         "}"
     );
 
-    
+    QFont font;
+    font.setBold(true);
     for (int row = 0; row < 9; ++row) {
         for (int col = 0; col < 9; ++col) {
             QTableWidgetItem* item = new QTableWidgetItem("");
             item->setTextAlignment(Qt::AlignCenter);
+            item->setFont(font);
             tableWidget->setItem(row, col, item);
         }
     }
@@ -129,17 +132,35 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     rightLayout->setSpacing(10);
 
     
-    buttonClear = new QPushButton("Clear", this);
+    buttonClear = new QPushButton("", this);
     buttonSolve = new QPushButton("Solve", this);
-    buttonUndo = new QPushButton("Undo", this);
+    buttonUndo = new QPushButton("", this);
     buttonNewGame = new QPushButton("New-Game", this);
-    buttonHint = new QPushButton("Hint", this);
+    buttonHint = new QPushButton("", this);
 
-    buttonClear->setFixedSize(60, 60);
-    buttonSolve->setFixedSize(60, 60);
-    buttonUndo->setFixedSize(60, 60);
-    buttonNewGame->setFixedSize(60, 60);
-    buttonHint->setFixedSize(60, 60);
+    buttonClear->setFixedSize(60, 70);
+    buttonSolve->setFixedSize(60, 70);
+    buttonUndo->setFixedSize(60, 70);
+    buttonNewGame->setFixedSize(60, 70);
+    buttonHint->setFixedSize(60, 70);
+
+    buttonClear->setStyleSheet(
+        "QPushButton { "
+        "    border-image: url(:/images/rubber.png) 0 0 0 0 stretch stretch;"
+        "}"
+    );
+
+    buttonUndo->setStyleSheet(
+        "QPushButton { "
+        "    border-image: url(:/images/undo.png) 0 0 0 0 stretch stretch;"
+        "}"
+    );
+
+    buttonHint->setStyleSheet(
+        "QPushButton { "
+        "    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;"
+        "}"
+    );
 
     connect(buttonClear, &QPushButton::clicked, [this]() {
         QTableWidgetItem* currentItem = tableWidget->currentItem();
@@ -147,6 +168,9 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             currentItem->setText("");
         }
         });
+    connect(buttonNewGame, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
+    connect(buttonSolve, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
+
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(buttonClear);
@@ -172,7 +196,16 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         connect(button, &QPushButton::clicked, [this, i]() {
             QTableWidgetItem* currentItem = tableWidget->currentItem();
             if (currentItem) {
-                currentItem->setText(QString::number(i));
+                int row = tableWidget->currentRow();
+                int col = tableWidget->currentColumn();
+
+                if (solutionBoard[row][col] == i) {
+                    board[row][col] = i;
+                    currentItem->setText(QString::number(i));
+                }
+                else {
+                    currentItem->setText("Chuj");
+                }
             }
             });
         int row = (i - 1) / 3;
@@ -181,21 +214,9 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     }
 
     rightLayout->addLayout(keypadLayout);
-
-    
     rightLayout->addStretch();
     
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
-    //button1->setFlat(true);
-    buttonHint->setStyleSheet(
-        "QPushButton { "
-        "    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;"
-        "}"
-    );
-
-
-    connect(buttonUndo, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
-    connect(buttonSolve, &QPushButton::clicked, this, &sudokuGameQt::onSolveBoardClicked);
 
     onDrawBoardClicked();
 }
@@ -206,14 +227,16 @@ sudokuGameQt::~sudokuGameQt()
 
 void sudokuGameQt::onDrawBoardClicked()
 {
-    int board[9][9] = { 0 };
+    int tempBoard[9][9] = { 0 };
 
-    
-    fillBoard(board);
-    prepareBoard(board, 40);
+    fillBoard(tempBoard);
+    memcpy(solutionBoard, tempBoard, sizeof(tempBoard));
+
+    prepareBoard(tempBoard, 40);
 
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
+            board[row][col] = tempBoard[row][col];
             if (board[row][col] == 0) {
                 tableWidget->item(row, col)->setText("");
             }
@@ -250,4 +273,3 @@ void sudokuGameQt::onSolveBoardClicked()
         std::cout << "Problems";
     }
 }
-
