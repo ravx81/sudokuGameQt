@@ -27,6 +27,7 @@ public:
 private slots:
     void onDrawBoardClicked();
     void onSolveBoardClicked();
+    void updateTimer();
 
 
 private:
@@ -40,5 +41,8 @@ private:
     int solutionBoard[9][9];
     int error;
     std::vector<Move> moves;
+    QTimer* timer;
+    QTime* startTime;
+    QLabel* labelTime;
 
 };

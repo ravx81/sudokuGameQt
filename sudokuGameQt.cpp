@@ -12,6 +12,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QWidget>
+#include <qtimer.h>
+#include <qtime>
 #include <qlabel.h>
 #include <iostream>
 #include <vector>
@@ -52,6 +54,7 @@ public:
 private slots:
     void onDrawBoardClicked();
     void onSolveBoardClicked();
+    void updateTimer();
 
 private:
     QWidget* centralWidget;
@@ -64,6 +67,9 @@ private:
     int board[9][9];
     int error;
     std::vector<Move> moves;
+    QTimer* timer;
+    QTime* startTime;
+    QLabel* labelTime;
 };
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
@@ -79,7 +85,12 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         "}"
     );
 
-    
+    timer = new QTimer(this);
+    startTime = new QTime(QTime::currentTime());
+
+    labelTime = new QLabel("0 seconds", this);
+
+
     centralWidget = new QWidget(this);
     centralWidget->setAttribute(Qt::WA_TranslucentBackground);
     setCentralWidget(centralWidget);
@@ -134,7 +145,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     QVBoxLayout* rightLayout = new QVBoxLayout(rightWidget);
     rightLayout->setContentsMargins(0, 0, 0, 0);
     rightLayout->setSpacing(10);
-
+    
     
     buttonClear = new QPushButton("", this);
     buttonUndo = new QPushButton("", this);
@@ -271,6 +282,9 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         });
     rightLayout->addLayout(keypadLayout);
     rightLayout->addWidget(errorLabel);
+    connect(timer, &QTimer::timeout, this, &sudokuGameQt::updateTimer);
+    timer->start(1000);
+    rightLayout->addWidget(labelTime);
     rightLayout->addStretch();
     
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
@@ -330,5 +344,10 @@ void sudokuGameQt::onSolveBoardClicked()
     else {
         std::cout << "Problems";
     }
+}
+void sudokuGameQt::updateTimer() {
+    int elapsed = startTime->msecsTo(QTime::currentTime());
+    // Update the label with elapsed time in seconds (with one decimal place)
+    labelTime->setText(QString::number(elapsed / 1000.0, 'f', 1) + " seconds");
 }
 
