@@ -52,7 +52,7 @@ public:
     ~sudokuGameQt();
 
 private slots:
-    void onDrawBoardClicked();
+    void onDrawBoardClicked(std::string level);
     void onSolveBoardClicked();
     void updateTimer();
 
@@ -63,6 +63,10 @@ private:
     QPushButton* buttonClear;
     QPushButton* buttonHint;
     QPushButton* buttonNewGame;
+    QPushButton* buttonEasyLevel;
+    QPushButton* buttonMediumLevel;
+    QPushButton* buttonHardLevel;
+
     int solutionBoard[9][9];
     int board[9][9];
     int error;
@@ -152,10 +156,22 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     buttonNewGame = new QPushButton("New-Game", this);
     buttonHint = new QPushButton("", this);
 
+    buttonEasyLevel = new QPushButton("Easy", this);
+    buttonMediumLevel = new QPushButton("Medium", this);
+    buttonHardLevel = new QPushButton("Hard", this);
+
+  
     buttonClear->setFixedSize(60, 70);
     buttonUndo->setFixedSize(60, 70);
     buttonNewGame->setFixedSize(60, 70);
     buttonHint->setFixedSize(60, 70);
+
+    buttonEasyLevel->setFixedSize(75,35);
+    buttonMediumLevel->setFixedSize(75, 35);
+    buttonHardLevel->setFixedSize(75, 35);
+
+
+    
 
     buttonClear->setStyleSheet(
         "QPushButton { "
@@ -175,7 +191,17 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         "}"
     );
 
-    connect(buttonNewGame, &QPushButton::clicked, this, &sudokuGameQt::onDrawBoardClicked);
+    connect(buttonEasyLevel, &QPushButton::clicked, this, [this]() {
+        onDrawBoardClicked("Easy");
+        });
+    
+    connect(buttonMediumLevel, &QPushButton::clicked, this, [this]() {
+        onDrawBoardClicked("Medium");
+        });
+
+    connect(buttonHardLevel, &QPushButton::clicked, this, [this]() {
+        onDrawBoardClicked("Hard");
+        });
 
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -184,7 +210,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     buttonLayout->addWidget(buttonNewGame);
     buttonLayout->addWidget(buttonHint);
 
-
+    
     rightLayout->addLayout(buttonLayout);
 
     
@@ -282,6 +308,14 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         });
     rightLayout->addLayout(keypadLayout);
     rightLayout->addWidget(errorLabel);
+
+    QHBoxLayout* difficultyLayout = new QHBoxLayout;
+    difficultyLayout->addWidget(buttonEasyLevel);
+    difficultyLayout->addWidget(buttonMediumLevel);
+    difficultyLayout->addWidget(buttonHardLevel);
+
+    rightLayout->addLayout(difficultyLayout);
+
     connect(timer, &QTimer::timeout, this, &sudokuGameQt::updateTimer);
     timer->start(1000);
     rightLayout->addWidget(labelTime);
@@ -289,22 +323,32 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
 
-    onDrawBoardClicked();
+    onDrawBoardClicked("Easy");
 }
 
 sudokuGameQt::~sudokuGameQt()
 {
 }
 
-void sudokuGameQt::onDrawBoardClicked()
+void sudokuGameQt::onDrawBoardClicked(std::string level)
 {
+
     error = 0;
     int tempBoard[9][9] = { 0 };
 
     fillBoard(tempBoard);
     memcpy(solutionBoard, tempBoard, sizeof(tempBoard));
+   
+    if (level == "Easy") {
+        prepareBoard(tempBoard, 30);
 
-    prepareBoard(tempBoard, 40);
+    }
+    else if (level == "Medium") {
+        prepareBoard(tempBoard, 40);
+    }
+    else if (level == "Hard") {
+        prepareBoard(tempBoard, 50);
+    }
 
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {

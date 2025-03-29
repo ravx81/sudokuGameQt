@@ -25,7 +25,7 @@ public:
     ~sudokuGameQt();
 
 private slots:
-    void onDrawBoardClicked();
+    void onDrawBoardClicked(std::string level);
     void onSolveBoardClicked();
     void updateTimer();
 
@@ -37,6 +37,9 @@ private:
     QPushButton* buttonClear;
     QPushButton* buttonHint;
     QPushButton* buttonNewGame;
+    QPushButton* buttonEasyLevel;
+    QPushButton* buttonMediumLevel;
+    QPushButton* buttonHardLevel;
     int board[9][9];
     int solutionBoard[9][9];
     int error;
