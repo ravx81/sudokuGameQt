@@ -17,7 +17,8 @@
 #include <qlabel.h>
 #include <iostream>
 #include <vector>
-#include "functions.h" 
+#include "functions.h"
+#include <qmessagebox.h>
 
 class SingleCharDelegate : public QStyledItemDelegate
 {
@@ -93,7 +94,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     startTime = new QTime(QTime::currentTime());
 
     labelTime = new QLabel("0 seconds", this);
-
+    labelTime->setStyleSheet("font-size: 20pt; font-weight: bold;");
 
     centralWidget = new QWidget(this);
     centralWidget->setAttribute(Qt::WA_TranslucentBackground);
@@ -160,6 +161,45 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     buttonMediumLevel = new QPushButton("Medium", this);
     buttonHardLevel = new QPushButton("Hard", this);
 
+    buttonEasyLevel->setStyleSheet(
+        "QPushButton { "
+        "    background-color: #ADD8E6;"
+        "    color: #333;"
+        "    font-weight: bold;"
+        "    border: none;"
+        "    border-radius: 5px;"
+        "}"
+        "QPushButton:hover { "
+        "    background-color: #B9DAEB;"
+        "}"
+    );
+
+    buttonMediumLevel->setStyleSheet(
+        "QPushButton { "
+        "    background-color: #ADD8E6;"
+        "    color: #333;"
+        "    font-weight: bold;"
+        "    border: none;"
+        "    border-radius: 5px;"
+        "}"
+        "QPushButton:hover { "
+        "    background-color: #B9DAEB;"
+        "}"
+    );
+
+    buttonHardLevel->setStyleSheet(
+        "QPushButton { "
+        "    background-color: #ADD8E6;"
+        "    color: #333;"
+        "    font-weight: bold;"
+        "    border: none;"
+        "    border-radius: 5px;"
+        "}"
+        "QPushButton:hover { "
+        "    background-color: #B9DAEB;"
+        "}"
+    );
+
   
     buttonClear->setFixedSize(60, 70);
     buttonUndo->setFixedSize(60, 70);
@@ -217,14 +257,21 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     QGridLayout* keypadLayout = new QGridLayout;
 
     QLabel* errorLabel = new QLabel("Mistakes: 0/3", this);
-    errorLabel->setStyleSheet("font-size: 18pt; color: red;");
-
+    errorLabel->setStyleSheet("font-size: 18pt; color: red; font-weight: bold;");
+    
     for (int i = 1; i < 10; i++) {
         QPushButton* button = new QPushButton(QString::number(i), this);
         button->setFixedSize(50, 50);
         button->setStyleSheet(
             "QPushButton { "
-            "   background-color: green;"
+            "    background-color: #ADD8E6;" 
+            "    color: #333;"             
+            "    font-weight: bold;"
+            "    border: none;"
+            "    border-radius: 5px;"      
+            "}"
+            "QPushButton:hover { "
+            "    background-color: #B9DAEB;" 
             "}"
         );
     
@@ -251,6 +298,11 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
                     currentItem->setText(QString::number(i));
                     error++;
                     errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
+                    if (error == 3) {
+                        QMessageBox::information(this, "Game Over", "You lost");
+                        error = 0;
+                        //errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
+                    }
                 }
             }
             });
@@ -307,7 +359,15 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     
         });
     rightLayout->addLayout(keypadLayout);
-    rightLayout->addWidget(errorLabel);
+
+
+    QHBoxLayout* infoLayout = new QHBoxLayout;
+    infoLayout->addWidget(errorLabel);
+    infoLayout->addSpacing(10);  // optional spacing
+    infoLayout->addWidget(labelTime);
+
+    rightLayout->addLayout(infoLayout);
+
 
     QHBoxLayout* difficultyLayout = new QHBoxLayout;
     difficultyLayout->addWidget(buttonEasyLevel);
@@ -318,7 +378,6 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     connect(timer, &QTimer::timeout, this, &sudokuGameQt::updateTimer);
     timer->start(1000);
-    rightLayout->addWidget(labelTime);
     rightLayout->addStretch();
     
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
