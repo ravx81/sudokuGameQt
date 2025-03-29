@@ -216,7 +216,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     
     QGridLayout* keypadLayout = new QGridLayout;
 
-    QLabel* errorLabel = new QLabel("0", this);
+    QLabel* errorLabel = new QLabel("Mistakes: 0/3", this);
     errorLabel->setStyleSheet("font-size: 18pt; color: red;");
 
     for (int i = 1; i < 10; i++) {
@@ -250,7 +250,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
                     currentItem->setForeground(QBrush(color));
                     currentItem->setText(QString::number(i));
                     error++;
-                    errorLabel->setText(QString::number(error));
+                    errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
                 }
             }
             });
@@ -272,7 +272,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
                 error--;
                 board[row][col] = 0;
                 currentItem->setText("");
-                errorLabel->setText(QString::number(error));
+                errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
                 moves.push_back(move);
             }
             else if (color == Qt::darkGreen) {
@@ -391,7 +391,7 @@ void sudokuGameQt::onSolveBoardClicked()
 }
 void sudokuGameQt::updateTimer() {
     int elapsed = startTime->msecsTo(QTime::currentTime());
-    // Update the label with elapsed time in seconds (with one decimal place)
-    labelTime->setText(QString::number(elapsed / 1000.0, 'f', 1) + " seconds");
+    QTime displayTime = QTime::fromMSecsSinceStartOfDay(elapsed);
+    labelTime->setText("Time: " + displayTime.toString("mm:ss"));
 }
 
