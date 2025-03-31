@@ -47,5 +47,6 @@ private:
     QTimer* timer;
     QTime* startTime;
     QLabel* labelTime;
+    QLabel* errorLabel;
 
 };

@@ -75,6 +75,7 @@ private:
     QTimer* timer;
     QTime* startTime;
     QLabel* labelTime;
+    QLabel* errorLabel;
 };
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
@@ -94,7 +95,10 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     startTime = new QTime(QTime::currentTime());
 
     labelTime = new QLabel("0 seconds", this);
-    labelTime->setStyleSheet("font-size: 20pt; font-weight: bold;");
+    labelTime->setStyleSheet("font-size: 10pt; font-weight: bold;");
+
+    errorLabel = new QLabel("Mistakes: 0/3", this);
+    errorLabel->setStyleSheet("font-size: 10pt; color: red; font-weight: bold;");
 
     centralWidget = new QWidget(this);
     centralWidget->setAttribute(Qt::WA_TranslucentBackground);
@@ -164,7 +168,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     buttonEasyLevel->setStyleSheet(
         "QPushButton { "
         "    background-color: #ADD8E6;"
-        "    color: #333;"
+        "    color: #FFFFFF; "
         "    font-weight: bold;"
         "    border: none;"
         "    border-radius: 5px;"
@@ -177,7 +181,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     buttonMediumLevel->setStyleSheet(
         "QPushButton { "
         "    background-color: #ADD8E6;"
-        "    color: #333;"
+        "    color: #FFFFFF; "
         "    font-weight: bold;"
         "    border: none;"
         "    border-radius: 5px;"
@@ -190,7 +194,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     buttonHardLevel->setStyleSheet(
         "QPushButton { "
         "    background-color: #ADD8E6;"
-        "    color: #333;"
+        "    color: #FFFFFF; "
         "    font-weight: bold;"
         "    border: none;"
         "    border-radius: 5px;"
@@ -203,7 +207,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
   
     buttonClear->setFixedSize(60, 70);
     buttonUndo->setFixedSize(60, 70);
-    buttonNewGame->setFixedSize(60, 70);
+    buttonNewGame->setFixedSize(250, 50);
     buttonHint->setFixedSize(60, 70);
 
     buttonEasyLevel->setFixedSize(75,35);
@@ -231,6 +235,12 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         "}"
     );
 
+    buttonNewGame->setStyleSheet(
+        "QPushButton {"
+        "   background-color: green;"
+        "}"
+    );
+
     connect(buttonEasyLevel, &QPushButton::clicked, this, [this]() {
         onDrawBoardClicked("Easy");
         });
@@ -244,28 +254,41 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         });
 
 
-    QHBoxLayout* buttonLayout = new QHBoxLayout;
-    buttonLayout->addWidget(buttonClear);
-    buttonLayout->addWidget(buttonUndo);
-    buttonLayout->addWidget(buttonNewGame);
-    buttonLayout->addWidget(buttonHint);
 
-    
-    rightLayout->addLayout(buttonLayout);
+    QVBoxLayout* infoLayout = new QVBoxLayout;
+    infoLayout->addWidget(errorLabel);
+    infoLayout->addWidget(labelTime);
+    infoLayout->setAlignment(Qt::AlignLeft);
+
+    QHBoxLayout* topRowLayout = new QHBoxLayout;
+
+    topRowLayout->addLayout(infoLayout);
+    topRowLayout->addStretch();
+
+    QHBoxLayout* centerButtonLayout = new QHBoxLayout;
+    centerButtonLayout->addWidget(buttonClear);
+    centerButtonLayout->addWidget(buttonUndo);
+    centerButtonLayout->addWidget(buttonHint);
+
+    centerButtonLayout->setAlignment(Qt::AlignCenter);
+
+    topRowLayout->addLayout(centerButtonLayout);
+
+    topRowLayout->addStretch();
+
+    rightLayout->addLayout(topRowLayout);
+
 
     
     QGridLayout* keypadLayout = new QGridLayout;
-
-    QLabel* errorLabel = new QLabel("Mistakes: 0/3", this);
-    errorLabel->setStyleSheet("font-size: 18pt; color: red; font-weight: bold;");
     
     for (int i = 1; i < 10; i++) {
         QPushButton* button = new QPushButton(QString::number(i), this);
         button->setFixedSize(50, 50);
         button->setStyleSheet(
             "QPushButton { "
-            "    background-color: #ADD8E6;" 
-            "    color: #333;"             
+            "    background-color: #3498db;" 
+            "    color: #FFFFFF;"             
             "    font-weight: bold;"
             "    border: none;"
             "    border-radius: 5px;"      
@@ -275,7 +298,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             "}"
         );
     
-        connect(button, &QPushButton::clicked, [this, i, errorLabel]() {
+        connect(button, &QPushButton::clicked, [this, i]() {
             QTableWidgetItem* currentItem = tableWidget->currentItem();
             if (currentItem) {
                 int row = tableWidget->currentRow();
@@ -310,7 +333,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         int col = (i - 1) % 3;
         keypadLayout->addWidget(button, row, col);
     }
-    connect(buttonClear, &QPushButton::clicked, [this, errorLabel]() {
+    connect(buttonClear, &QPushButton::clicked, [this]() {
         QTableWidgetItem* currentItem = tableWidget->currentItem();
         if (currentItem) {
             int row = tableWidget->currentRow();
@@ -335,7 +358,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
             }
         }
         });
-    connect(buttonUndo, &QPushButton::clicked, [this, errorLabel]() {
+    connect(buttonUndo, &QPushButton::clicked, [this]() {
         if (moves.empty()) {
             return;
         }
@@ -358,15 +381,10 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         }
     
         });
+    keypadLayout->setContentsMargins(95, 0, 0, 0);
+
+
     rightLayout->addLayout(keypadLayout);
-
-
-    QHBoxLayout* infoLayout = new QHBoxLayout;
-    infoLayout->addWidget(errorLabel);
-    infoLayout->addSpacing(10);  // optional spacing
-    infoLayout->addWidget(labelTime);
-
-    rightLayout->addLayout(infoLayout);
 
 
     QHBoxLayout* difficultyLayout = new QHBoxLayout;
@@ -374,14 +392,26 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     difficultyLayout->addWidget(buttonMediumLevel);
     difficultyLayout->addWidget(buttonHardLevel);
 
+
+    difficultyLayout->setContentsMargins(95, 0, 0, 0);
+
+
     rightLayout->addLayout(difficultyLayout);
+
+    QHBoxLayout* newGameLayout = new QHBoxLayout;
+
+    newGameLayout->addSpacing(100); 
+    newGameLayout->addWidget(buttonNewGame);
+    newGameLayout->setAlignment(buttonNewGame, Qt::AlignCenter);
+
+    rightLayout->addLayout(newGameLayout);
+
 
     connect(timer, &QTimer::timeout, this, &sudokuGameQt::updateTimer);
     timer->start(1000);
     rightLayout->addStretch();
     
-    mainLayout->addWidget(rightWidget, 0, Qt::AlignTop | Qt::AlignRight);
-
+    mainLayout->addWidget(rightWidget, 0, Qt::AlignTop);
     onDrawBoardClicked("Easy");
 }
 
