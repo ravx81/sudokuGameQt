@@ -56,6 +56,7 @@ private slots:
     void onDrawBoardClicked(std::string level);
     void onSolveBoardClicked();
     void updateTimer();
+    void buttonHintClicked();
 
 private:
     QWidget* centralWidget;
@@ -76,6 +77,9 @@ private:
     QTime* startTime;
     QLabel* labelTime;
     QLabel* errorLabel;
+
+    std::string level;
+    int hintCounter;
 };
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
@@ -90,6 +94,8 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         "    background-size: cover;"
         "}"
     );
+
+    hintCounter = 0;
 
     timer = new QTimer(this);
     startTime = new QTime(QTime::currentTime());
@@ -167,7 +173,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     buttonEasyLevel->setStyleSheet(
         "QPushButton { "
-        "    background-color: #ADD8E6;"
+        "    background-color: #5dade2;"
         "    color: #FFFFFF; "
         "    font-weight: bold;"
         "    border: none;"
@@ -180,7 +186,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     buttonMediumLevel->setStyleSheet(
         "QPushButton { "
-        "    background-color: #ADD8E6;"
+        "    background-color: #5dade2;"
         "    color: #FFFFFF; "
         "    font-weight: bold;"
         "    border: none;"
@@ -193,7 +199,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
 
     buttonHardLevel->setStyleSheet(
         "QPushButton { "
-        "    background-color: #ADD8E6;"
+        "    background-color: #5dade2;"
         "    color: #FFFFFF; "
         "    font-weight: bold;"
         "    border: none;"
@@ -236,22 +242,35 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     );
 
     buttonNewGame->setStyleSheet(
-        "QPushButton {"
-        "   background-color: green;"
+        "QPushButton { "
+        "    background-color: #85c1e9; "
+        "    color: #FFFFFF; "
+        "    font-weight: bold;"
+        "    border: none;"
+        "    border-radius: 5px;"
+        "}"
+        "QPushButton:hover { "
+        "    background-color: #B9DAEB;"
         "}"
     );
 
+
+
     connect(buttonEasyLevel, &QPushButton::clicked, this, [this]() {
-        onDrawBoardClicked("Easy");
+        level = "Easy";
+        onDrawBoardClicked(level);
         });
     
     connect(buttonMediumLevel, &QPushButton::clicked, this, [this]() {
-        onDrawBoardClicked("Medium");
+        level = "Medium";
+        onDrawBoardClicked(level);
         });
 
     connect(buttonHardLevel, &QPushButton::clicked, this, [this]() {
-        onDrawBoardClicked("Hard");
+        level = "Hard";
+        onDrawBoardClicked(level);
         });
+    connect(buttonHint, &QPushButton::clicked, this, &sudokuGameQt::buttonHintClicked);
 
 
 
@@ -304,27 +323,34 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
                 int row = tableWidget->currentRow();
                 int col = tableWidget->currentColumn();
                 int oldValue = board[row][col];
-                              
-                if (solutionBoard[row][col] == i) {
-                    board[row][col] = i;
-                    QColor color = Qt::darkGreen;
-                    Move move{ row, col,oldValue, i, color };
-                    moves.push_back(move);
-                    currentItem->setForeground(QBrush(color));
-                    currentItem->setText(QString::number(i));
-                }
-                else {
-                    QColor color = Qt::red;
-                    Move move{ row, col,oldValue, i, color };
-                    moves.push_back(move);
-                    currentItem->setForeground(QBrush(color));
-                    currentItem->setText(QString::number(i));
-                    error++;
-                    errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
-                    if (error == 3) {
-                        QMessageBox::information(this, "Game Over", "You lost");
-                        error = 0;
-                        //errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
+                if (board[row][col] == 0) {
+                    if (solutionBoard[row][col] == i) {
+                        board[row][col] = i;
+                        QColor color = Qt::darkGreen;
+                        Move move{ row, col,oldValue, i, color };
+                        moves.push_back(move);
+                        currentItem->setForeground(QBrush(color));
+                        currentItem->setText(QString::number(i));
+                    }
+                    else {
+                        QColor color = Qt::red;
+                        Move move{ row, col,oldValue, i, color };
+                        moves.push_back(move);
+                        currentItem->setForeground(QBrush(color));
+                        currentItem->setText(QString::number(i));
+                        error++;
+                        errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
+                        if (error == 3) {
+                            QMessageBox messageBox;
+                            messageBox.setText("You lost, 3 mistakes are maden");
+                            messageBox.setStandardButtons(QMessageBox::Ok);
+                            messageBox.setFixedSize(400, 200);
+                            messageBox.exec();
+                            error = 0;
+
+                            onDrawBoardClicked("Easy");
+                            //errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
+                        }
                     }
                 }
             }
@@ -369,7 +395,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         board[lastMove.row][lastMove.col] = lastMove.oldValue;
         if (lastMove.color == Qt::red) {
             error--;
-            errorLabel->setText(QString::number(error));
+            errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
         }
   
 
@@ -419,7 +445,7 @@ sudokuGameQt::~sudokuGameQt()
 {
 }
 
-void sudokuGameQt::onDrawBoardClicked(std::string level)
+void sudokuGameQt::onDrawBoardClicked(std::string difficulty)
 {
 
     error = 0;
@@ -428,14 +454,17 @@ void sudokuGameQt::onDrawBoardClicked(std::string level)
     fillBoard(tempBoard);
     memcpy(solutionBoard, tempBoard, sizeof(tempBoard));
    
-    if (level == "Easy") {
+    errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
+    *startTime = QTime::currentTime();
+
+    if (difficulty == "Easy") {
         prepareBoard(tempBoard, 30);
 
     }
-    else if (level == "Medium") {
+    else if (difficulty == "Medium") {
         prepareBoard(tempBoard, 40);
     }
-    else if (level == "Hard") {
+    else if (difficulty == "Hard") {
         prepareBoard(tempBoard, 50);
     }
 
@@ -447,6 +476,7 @@ void sudokuGameQt::onDrawBoardClicked(std::string level)
             }
             else {
                 tableWidget->item(row, col)->setText(QString::number(board[row][col]));
+                tableWidget->item(row, col)->setForeground(QBrush(Qt::black));
             }
         }
     }
@@ -483,4 +513,34 @@ void sudokuGameQt::updateTimer() {
     QTime displayTime = QTime::fromMSecsSinceStartOfDay(elapsed);
     labelTime->setText("Time: " + displayTime.toString("mm:ss"));
 }
+void sudokuGameQt::buttonHintClicked() {
+    if (hintCounter == 0) {
+        std::vector<std::pair<int, int>> emptyCells;
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board[row][col] == 0) {
+                    emptyCells.push_back({ row,col });
+                }
+            }
+        }
 
+        int randomIndex = rand() % emptyCells.size();
+        int row = emptyCells[randomIndex].first;
+        int col = emptyCells[randomIndex].second;
+
+        int value = solutionBoard[row][col];
+
+        board[row][col] = value;
+        tableWidget->item(row, col)->setText(QString::number(value));
+        tableWidget->item(row, col)->setForeground(QBrush(Qt::blue));
+        
+        hintCounter++;
+    }
+    else {
+        QMessageBox messageBox;
+        messageBox.setText("No more hints.");
+        messageBox.setStandardButtons(QMessageBox::Ok);
+        messageBox.setFixedSize(400, 200);
+        messageBox.exec();
+    }
+}

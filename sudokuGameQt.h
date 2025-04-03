@@ -28,6 +28,8 @@ private slots:
     void onDrawBoardClicked(std::string level);
     void onSolveBoardClicked();
     void updateTimer();
+    void buttonHintClicked();
+
 
 
 private:
@@ -48,5 +50,9 @@ private:
     QTime* startTime;
     QLabel* labelTime;
     QLabel* errorLabel;
+    
+    std::string level;
+    int hintCounter;
+
 
 };
