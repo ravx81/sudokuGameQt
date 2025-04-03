@@ -85,7 +85,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
 {
 
-    setFixedSize(850, 600);
+    setFixedSize(850, 500);
     setStyleSheet(
         "QMainWindow {"
         "    background-image: url(background.png);"
@@ -96,6 +96,7 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     );
 
     hintCounter = 0;
+    level = "Easy";
 
     timer = new QTimer(this);
     startTime = new QTime(QTime::currentTime());
@@ -271,7 +272,14 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         onDrawBoardClicked(level);
         });
     connect(buttonHint, &QPushButton::clicked, this, &sudokuGameQt::buttonHintClicked);
+    connect(buttonNewGame, &QPushButton::clicked, this, [this]() {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Confirm", "Do you want to start new game?", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            onDrawBoardClicked(level);
+        }
 
+        });
 
 
     QVBoxLayout* infoLayout = new QVBoxLayout;
