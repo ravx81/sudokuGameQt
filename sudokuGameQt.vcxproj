@@ -96,17 +96,17 @@
     <QtRcc Include="sudokuGameQt.qrc" />
     <QtUic Include="sudokuGameQt.ui" />
     <QtMoc Include="sudokuGameQt.h" />
-    <ClCompile Include="functions.cpp" />
-    <QtMoc Include="sudokuGameQt.cpp">
+    <ClCompile Include="sudokuLogic.cpp" />
+    <ClCompile Include="sudokuGameQt.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
-    </QtMoc>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="functions.h" />
+    <ClInclude Include="sudokuLogic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

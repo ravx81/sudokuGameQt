@@ -1,16 +1,25 @@
 #pragma once
-
-#include <QtWidgets/QMainWindow>
+#include <QMainWindow>
+#include <QTableWidget>
 #include <QPushButton>
 #include <QLabel>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLineEdit>
-#include <QTableWidgetItem>
-#include <QTableWidget>
-#include <iostream>
+#include <QTimer>
+#include <QTime>
 #include <vector>
-#include <qcolor.h>
+#include <QStyledItemDelegate>
+#include "SudokuLogic.h"
+
+class SingleCharDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    SingleCharDelegate(QObject* parent = nullptr);
+
+    QWidget* createEditor(QWidget* parent,
+        const QStyleOptionViewItem& option,
+        const QModelIndex& index) const override;
+};
+
 struct Move {
     int row, col, oldValue, newValue;
     QColor color;
@@ -19,9 +28,8 @@ struct Move {
 class sudokuGameQt : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    explicit sudokuGameQt(QWidget* parent = nullptr);
+    sudokuGameQt(QWidget* parent = nullptr);
     ~sudokuGameQt();
 
 private slots:
@@ -29,8 +37,6 @@ private slots:
     void onSolveBoardClicked();
     void updateTimer();
     void buttonHintClicked();
-
-
 
 private:
     QWidget* centralWidget;
@@ -42,17 +48,17 @@ private:
     QPushButton* buttonEasyLevel;
     QPushButton* buttonMediumLevel;
     QPushButton* buttonHardLevel;
-    int board[9][9];
-    int solutionBoard[9][9];
-    int error;
-    std::vector<Move> moves;
-    QTimer* timer;
-    QTime* startTime;
+
     QLabel* labelTime;
     QLabel* errorLabel;
-    
+
+    QTimer* timer;
+    QTime* startTime;
+
+    SudokuLogic m_logic;
+
+    std::vector<Move> moves;
+
     std::string level;
     int hintCounter;
-
-
 };

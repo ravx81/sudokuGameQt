@@ -1,99 +1,39 @@
-#include <QApplication>
-#include <QMainWindow>
-#include <QTableWidget>
+#include "sudokuGameQt.h"
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
-#include <QPushButton>
-#include <QTableWidgetItem>
-#include <QStyledItemDelegate>
 #include <QLineEdit>
+#include <QStyledItemDelegate>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
-#include <QWidget>
-#include <qtimer.h>
-#include <qtime>
-#include <qlabel.h>
+#include <QMessageBox>
 #include <iostream>
-#include <vector>
-#include "functions.h"
-#include <qmessagebox.h>
+#include <cstdlib> 
+#include <ctime>
 
-class SingleCharDelegate : public QStyledItemDelegate
+// delegate for single character input in table cells
+SingleCharDelegate::SingleCharDelegate(QObject* parent)
+    : QStyledItemDelegate(parent)
 {
-public:
-    SingleCharDelegate(QObject* parent = nullptr)
-        : QStyledItemDelegate(parent)
-    {
-    }
+}
 
-    QWidget* createEditor(QWidget* parent,
-        const QStyleOptionViewItem& option,
-        const QModelIndex& index) const override
-    {
-        QLineEdit* editor = new QLineEdit(parent);
-        editor->setMaxLength(1);
-        QRegularExpression re("[1-9]");
-        QValidator* validator = new QRegularExpressionValidator(re, editor);
-        editor->setValidator(validator);
-        return editor;
-    }
-};
-
-struct Move {
-    int row, col, oldValue, newValue;
-    QColor color;
-};
-class sudokuGameQt : public QMainWindow
+QWidget* SingleCharDelegate::createEditor(QWidget* parent,
+    const QStyleOptionViewItem& option,
+    const QModelIndex& index) const
 {
-    Q_OBJECT
-public:
-    sudokuGameQt(QWidget* parent = nullptr);
-    ~sudokuGameQt();
+    QLineEdit* editor = new QLineEdit(parent);
+    editor->setMaxLength(1);
+    QRegularExpression re("[1-9]");
+    auto* validator = new QRegularExpressionValidator(re, editor);
+    editor->setValidator(validator);
+    return editor;
+}
 
-private slots:
-    void onDrawBoardClicked(std::string level);
-    void onSolveBoardClicked();
-    void updateTimer();
-    void buttonHintClicked();
-
-private:
-    QWidget* centralWidget;
-    QTableWidget* tableWidget;
-    QPushButton* buttonUndo;
-    QPushButton* buttonClear;
-    QPushButton* buttonHint;
-    QPushButton* buttonNewGame;
-    QPushButton* buttonEasyLevel;
-    QPushButton* buttonMediumLevel;
-    QPushButton* buttonHardLevel;
-
-    int solutionBoard[9][9];
-    int board[9][9];
-    int error;
-    std::vector<Move> moves;
-    QTimer* timer;
-    QTime* startTime;
-    QLabel* labelTime;
-    QLabel* errorLabel;
-
-    std::string level;
-    int hintCounter;
-};
 sudokuGameQt::sudokuGameQt(QWidget* parent)
     : QMainWindow(parent)
 {
-
     setFixedSize(850, 500);
-    setStyleSheet(
-        "QMainWindow {"
-        "    background-image: url(background.png);"
-        "    background-repeat: no-repeat;"
-        "    background-position: top left;"
-        "    background-size: cover;"
-        "}"
-    );
 
     hintCounter = 0;
     level = "Easy";
@@ -101,22 +41,21 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     timer = new QTimer(this);
     startTime = new QTime(QTime::currentTime());
 
-    labelTime = new QLabel("0 seconds", this);
-    labelTime->setStyleSheet("font-size: 10pt; font-weight: bold;");
+    labelTime = new QLabel("Time: 00:00", this);
+    labelTime->setObjectName("labelTime");
 
     errorLabel = new QLabel("Mistakes: 0/3", this);
-    errorLabel->setStyleSheet("font-size: 10pt; color: red; font-weight: bold;");
+    errorLabel->setObjectName("errorLabel");
 
     centralWidget = new QWidget(this);
-    centralWidget->setAttribute(Qt::WA_TranslucentBackground);
     setCentralWidget(centralWidget);
 
-   
+    // create main layout for the central widget
     QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
     mainLayout->setContentsMargins(10, 10, 10, 10);
     mainLayout->setSpacing(10);
 
-    
+    // configure table widget for sudoku grid
     tableWidget = new QTableWidget(9, 9, this);
     tableWidget->setItemDelegate(new SingleCharDelegate(this));
     tableWidget->horizontalHeader()->setVisible(false);
@@ -130,14 +69,6 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     tableWidget->setFrameStyle(QFrame::NoFrame);
     tableWidget->setShowGrid(false);
     tableWidget->viewport()->setAutoFillBackground(false);
-    tableWidget->setStyleSheet(
-        "QTableWidget {"
-        "    background-color: rgba(255, 255, 255, 0);"
-        "}"
-        "QTableView {"
-        "    background-color: rgba(255, 255, 255, 0);"
-        "}"
-    );
 
     QFont font;
     font.setBold(true);
@@ -153,123 +84,53 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
     int totalHeight = (cellSize * 9) + tableWidget->frameWidth() * 2;
     tableWidget->setFixedSize(totalWidth, totalHeight);
 
-    
     mainLayout->addWidget(tableWidget, 0, Qt::AlignLeft | Qt::AlignTop);
 
-   
+    // set up right side panel with buttons and info labels
     QWidget* rightWidget = new QWidget(this);
     QVBoxLayout* rightLayout = new QVBoxLayout(rightWidget);
     rightLayout->setContentsMargins(0, 0, 0, 0);
     rightLayout->setSpacing(10);
-    
-    
+
     buttonClear = new QPushButton("", this);
+    buttonClear->setObjectName("clearButton");
     buttonUndo = new QPushButton("", this);
+    buttonUndo->setObjectName("undoButton");
     buttonNewGame = new QPushButton("New-Game", this);
+    buttonNewGame->setObjectName("newGameButton");
     buttonHint = new QPushButton("", this);
+    buttonHint->setObjectName("hintButton");
 
     buttonEasyLevel = new QPushButton("Easy", this);
+    buttonEasyLevel->setObjectName("levelButton");
     buttonMediumLevel = new QPushButton("Medium", this);
+    buttonMediumLevel->setObjectName("levelButton");
     buttonHardLevel = new QPushButton("Hard", this);
-
-    buttonEasyLevel->setStyleSheet(
-        "QPushButton { "
-        "    background-color: #5dade2;"
-        "    color: #FFFFFF; "
-        "    font-weight: bold;"
-        "    border: none;"
-        "    border-radius: 5px;"
-        "}"
-        "QPushButton:hover { "
-        "    background-color: #B9DAEB;"
-        "}"
-    );
-
-    buttonMediumLevel->setStyleSheet(
-        "QPushButton { "
-        "    background-color: #5dade2;"
-        "    color: #FFFFFF; "
-        "    font-weight: bold;"
-        "    border: none;"
-        "    border-radius: 5px;"
-        "}"
-        "QPushButton:hover { "
-        "    background-color: #B9DAEB;"
-        "}"
-    );
-
-    buttonHardLevel->setStyleSheet(
-        "QPushButton { "
-        "    background-color: #5dade2;"
-        "    color: #FFFFFF; "
-        "    font-weight: bold;"
-        "    border: none;"
-        "    border-radius: 5px;"
-        "}"
-        "QPushButton:hover { "
-        "    background-color: #B9DAEB;"
-        "}"
-    );
-
-  
-    buttonClear->setFixedSize(60, 70);
-    buttonUndo->setFixedSize(60, 70);
-    buttonNewGame->setFixedSize(250, 50);
-    buttonHint->setFixedSize(60, 70);
-
-    buttonEasyLevel->setFixedSize(75,35);
-    buttonMediumLevel->setFixedSize(75, 35);
-    buttonHardLevel->setFixedSize(75, 35);
-
-
-    
-
-    buttonClear->setStyleSheet(
-        "QPushButton { "
-        "    border-image: url(:/images/rubber.png) 0 0 0 0 stretch stretch;"
-        "}"
-    );
-
-    buttonUndo->setStyleSheet(
-        "QPushButton { "
-        "    border-image: url(:/images/undo.png) 0 0 0 0 stretch stretch;"
-        "}"
-    );
-
-    buttonHint->setStyleSheet(
-        "QPushButton { "
-        "    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;"
-        "}"
-    );
-
-    buttonNewGame->setStyleSheet(
-        "QPushButton { "
-        "    background-color: #85c1e9; "
-        "    color: #FFFFFF; "
-        "    font-weight: bold;"
-        "    border: none;"
-        "    border-radius: 5px;"
-        "}"
-        "QPushButton:hover { "
-        "    background-color: #B9DAEB;"
-        "}"
-    );
-
-
+    buttonHardLevel->setObjectName("levelButton");
 
     connect(buttonEasyLevel, &QPushButton::clicked, this, [this]() {
         level = "Easy";
-        onDrawBoardClicked(level);
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Confirm", "Do you want to start new game?", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            onDrawBoardClicked(level);
+        }
         });
-    
     connect(buttonMediumLevel, &QPushButton::clicked, this, [this]() {
         level = "Medium";
-        onDrawBoardClicked(level);
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Confirm", "Do you want to start new game?", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            onDrawBoardClicked(level);
+        }
         });
-
     connect(buttonHardLevel, &QPushButton::clicked, this, [this]() {
         level = "Hard";
-        onDrawBoardClicked(level);
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Confirm", "Do you want to start new game?", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            onDrawBoardClicked(level);
+        }
         });
     connect(buttonHint, &QPushButton::clicked, this, &sudokuGameQt::buttonHintClicked);
     connect(buttonNewGame, &QPushButton::clicked, this, [this]() {
@@ -278,174 +139,132 @@ sudokuGameQt::sudokuGameQt(QWidget* parent)
         if (reply == QMessageBox::Yes) {
             onDrawBoardClicked(level);
         }
-
         });
 
-
+    // set up layout for info labels (mistakes and time)
     QVBoxLayout* infoLayout = new QVBoxLayout;
     infoLayout->addWidget(errorLabel);
     infoLayout->addWidget(labelTime);
     infoLayout->setAlignment(Qt::AlignLeft);
 
+    // create top row layout with info and central buttons
     QHBoxLayout* topRowLayout = new QHBoxLayout;
-
     topRowLayout->addLayout(infoLayout);
     topRowLayout->addStretch();
 
+    // create layout for clear, undo, and hint buttons
     QHBoxLayout* centerButtonLayout = new QHBoxLayout;
     centerButtonLayout->addWidget(buttonClear);
     centerButtonLayout->addWidget(buttonUndo);
     centerButtonLayout->addWidget(buttonHint);
-
     centerButtonLayout->setAlignment(Qt::AlignCenter);
 
     topRowLayout->addLayout(centerButtonLayout);
-
     topRowLayout->addStretch();
 
     rightLayout->addLayout(topRowLayout);
 
-
-    
+    // create keypad layout for number input
     QGridLayout* keypadLayout = new QGridLayout;
-    
     for (int i = 1; i < 10; i++) {
         QPushButton* button = new QPushButton(QString::number(i), this);
-        button->setFixedSize(50, 50);
-        button->setStyleSheet(
-            "QPushButton { "
-            "    background-color: #3498db;" 
-            "    color: #FFFFFF;"             
-            "    font-weight: bold;"
-            "    border: none;"
-            "    border-radius: 5px;"      
-            "}"
-            "QPushButton:hover { "
-            "    background-color: #B9DAEB;" 
-            "}"
-        );
-    
+        button->setObjectName("keypadButton");
         connect(button, &QPushButton::clicked, [this, i]() {
             QTableWidgetItem* currentItem = tableWidget->currentItem();
-            if (currentItem) {
-                int row = tableWidget->currentRow();
-                int col = tableWidget->currentColumn();
-                int oldValue = board[row][col];
-                if (board[row][col] == 0) {
-                    if (solutionBoard[row][col] == i) {
-                        board[row][col] = i;
-                        QColor color = Qt::darkGreen;
-                        Move move{ row, col,oldValue, i, color };
-                        moves.push_back(move);
-                        currentItem->setForeground(QBrush(color));
-                        currentItem->setText(QString::number(i));
-                    }
-                    else {
-                        QColor color = Qt::red;
-                        Move move{ row, col,oldValue, i, color };
-                        moves.push_back(move);
-                        currentItem->setForeground(QBrush(color));
-                        currentItem->setText(QString::number(i));
-                        error++;
-                        errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
-                        if (error == 3) {
-                            QMessageBox messageBox;
-                            messageBox.setText("You lost, 3 mistakes are maden");
-                            messageBox.setStandardButtons(QMessageBox::Ok);
-                            messageBox.setFixedSize(400, 200);
-                            messageBox.exec();
-                            error = 0;
-
-                            onDrawBoardClicked("Easy");
-                            //errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
-                        }
+            if (!currentItem) return;
+            int row = tableWidget->currentRow();
+            int col = tableWidget->currentColumn();
+            int oldValue = m_logic.getValue(row, col);
+            if (oldValue == 0) {
+                int correctVal = m_logic.getSolutionValue(row, col);
+                if (correctVal == i) {
+                    m_logic.setValue(row, col, i);
+                    Move move{ row, col, oldValue, i, Qt::darkGreen };
+                    moves.push_back(move);
+                    currentItem->setText(QString::number(i));
+                    currentItem->setForeground(QBrush(Qt::darkGreen));
+                }
+                else {
+                    Move move{ row, col, oldValue, i, Qt::red };
+                    moves.push_back(move);
+                    currentItem->setText(QString::number(i));
+                    currentItem->setForeground(QBrush(Qt::red));
+                    m_logic.setValue(row, col, i);
+                    m_logic.incrementMistakes();
+                    int mistakes = m_logic.getMistakes();
+                    errorLabel->setText(QString("Mistakes: %1/3").arg(mistakes));
+                    if (mistakes == 3) {
+                        QMessageBox messageBox;
+                        messageBox.setText("You lost, 3 mistakes were made!");
+                        messageBox.setStandardButtons(QMessageBox::Ok);
+                        messageBox.setFixedSize(400, 200);
+                        messageBox.exec();
+                        m_logic.resetMistakes();
+                        onDrawBoardClicked("Easy");
                     }
                 }
             }
             });
-        int row = (i - 1) / 3;
-        int col = (i - 1) % 3;
-        keypadLayout->addWidget(button, row, col);
+        int r = (i - 1) / 3;
+        int c = (i - 1) % 3;
+        keypadLayout->addWidget(button, r, c);
     }
+
     connect(buttonClear, &QPushButton::clicked, [this]() {
         QTableWidgetItem* currentItem = tableWidget->currentItem();
-        if (currentItem) {
-            int row = tableWidget->currentRow();
-            int col = tableWidget->currentColumn();
-            int oldValue = board[row][col];
-            QBrush brush = currentItem->foreground();
-            QColor color = brush.color();
-            Move move{ row, col,oldValue, 0, color };
-    
-            if (color == Qt::red) {
-                error--;
-                board[row][col] = 0;
-                currentItem->setText("");
-                errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
-                moves.push_back(move);
-            }
-            else if (color == Qt::darkGreen) {
-                board[row][col] = 0;
-                currentItem->setText("");
-                moves.push_back(move);
-
-            }
+        if (!currentItem) return;
+        int row = tableWidget->currentRow();
+        int col = tableWidget->currentColumn();
+        int oldValue = m_logic.getValue(row, col);
+        if (oldValue != 0) {
+            Move move{ row, col, oldValue, 0, currentItem->foreground().color() };
+            m_logic.setValue(row, col, 0);
+            currentItem->setText("");
+            moves.push_back(move);
         }
         });
+
     connect(buttonUndo, &QPushButton::clicked, [this]() {
         if (moves.empty()) {
             return;
         }
-
         Move lastMove = moves.back();
         moves.pop_back();
-
-        board[lastMove.row][lastMove.col] = lastMove.oldValue;
-        if (lastMove.color == Qt::red) {
-            error--;
-            errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
-        }
-  
-
-        if (lastMove.oldValue == 0){
-            tableWidget->item(lastMove.row, lastMove.col)->setText("");
+        m_logic.setValue(lastMove.row, lastMove.col, lastMove.oldValue);
+        QTableWidgetItem* item = tableWidget->item(lastMove.row, lastMove.col);
+        if (lastMove.oldValue == 0) {
+            item->setText("");
         }
         else {
-            tableWidget->item(lastMove.row, lastMove.col)->setText(QString::number(lastMove.oldValue));
+            item->setText(QString::number(lastMove.oldValue));
         }
-    
         });
+
     keypadLayout->setContentsMargins(95, 0, 0, 0);
-
-
     rightLayout->addLayout(keypadLayout);
 
-
+    // create layout for difficulty level selection buttons
     QHBoxLayout* difficultyLayout = new QHBoxLayout;
     difficultyLayout->addWidget(buttonEasyLevel);
     difficultyLayout->addWidget(buttonMediumLevel);
     difficultyLayout->addWidget(buttonHardLevel);
-
-
     difficultyLayout->setContentsMargins(95, 0, 0, 0);
-
-
     rightLayout->addLayout(difficultyLayout);
 
+    // create layout for new game button
     QHBoxLayout* newGameLayout = new QHBoxLayout;
-
-    newGameLayout->addSpacing(100); 
+    newGameLayout->addSpacing(100);
     newGameLayout->addWidget(buttonNewGame);
     newGameLayout->setAlignment(buttonNewGame, Qt::AlignCenter);
-
     rightLayout->addLayout(newGameLayout);
-
 
     connect(timer, &QTimer::timeout, this, &sudokuGameQt::updateTimer);
     timer->start(1000);
     rightLayout->addStretch();
-    
+
     mainLayout->addWidget(rightWidget, 0, Qt::AlignTop);
+
+    // initialize game board with default difficulty
     onDrawBoardClicked("Easy");
 }
 
@@ -455,100 +274,73 @@ sudokuGameQt::~sudokuGameQt()
 
 void sudokuGameQt::onDrawBoardClicked(std::string difficulty)
 {
-
-    error = 0;
-    int tempBoard[9][9] = { 0 };
-
-    fillBoard(tempBoard);
-    memcpy(solutionBoard, tempBoard, sizeof(tempBoard));
-   
-    errorLabel->setText("Mistakes: " + QString::number(error) + "/3");
-    *startTime = QTime::currentTime();
-
-    if (difficulty == "Easy") {
-        prepareBoard(tempBoard, 30);
-
-    }
-    else if (difficulty == "Medium") {
-        prepareBoard(tempBoard, 40);
-    }
-    else if (difficulty == "Hard") {
-        prepareBoard(tempBoard, 50);
-    }
-
+    moves.clear();
+    m_logic.generateBoard(difficulty);
+    hintCounter = 0;
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
-            board[row][col] = tempBoard[row][col];
-            if (board[row][col] == 0) {
-                tableWidget->item(row, col)->setText("");
+            int val = m_logic.getValue(row, col);
+            QTableWidgetItem* item = tableWidget->item(row, col);
+            if (val == 0) {
+                item->setText("");
             }
             else {
-                tableWidget->item(row, col)->setText(QString::number(board[row][col]));
-                tableWidget->item(row, col)->setForeground(QBrush(Qt::black));
+                item->setText(QString::number(val));
+                item->setForeground(Qt::black);
             }
         }
     }
+    m_logic.resetMistakes();
+    errorLabel->setText("Mistakes: 0/3");
+    *startTime = QTime::currentTime();
 }
 
 void sudokuGameQt::onSolveBoardClicked()
 {
-    int board[9][9];
-    
+    bool ok = m_logic.solveCurrentBoard();
+    if (!ok) {
+        std::cout << "Problems: board is unsolvable.\n";
+    }
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
-            QString cellText = tableWidget->item(row, col)->text();
-            if (!cellText.isEmpty()) {
-                board[row][col] = cellText.toInt();
-            }
-            else {
-                board[row][col] = 0;
-            }
+            int val = m_logic.getValue(row, col);
+            tableWidget->item(row, col)->setText(QString::number(val));
         }
-    }
-    if (solveBoard(board)) {
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                tableWidget->item(row, col)->setText(QString::number(board[row][col]));
-            }
-        }
-    }
-    else {
-        std::cout << "Problems";
     }
 }
-void sudokuGameQt::updateTimer() {
+
+void sudokuGameQt::updateTimer()
+{
     int elapsed = startTime->msecsTo(QTime::currentTime());
     QTime displayTime = QTime::fromMSecsSinceStartOfDay(elapsed);
     labelTime->setText("Time: " + displayTime.toString("mm:ss"));
 }
-void sudokuGameQt::buttonHintClicked() {
-    if (hintCounter == 0) {
-        std::vector<std::pair<int, int>> emptyCells;
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                if (board[row][col] == 0) {
-                    emptyCells.push_back({ row,col });
-                }
+
+void sudokuGameQt::buttonHintClicked()
+{
+    if (hintCounter >= 1) {
+        QMessageBox::information(this, "No more hints", "You used your hint already!");
+        return;
+    }
+    std::vector<std::pair<int, int>> emptyCells;
+    for (int row = 0; row < 9; row++) {
+        for (int col = 0; col < 9; col++) {
+            if (m_logic.getValue(row, col) == 0) {
+                emptyCells.push_back({ row, col });
             }
         }
-
-        int randomIndex = rand() % emptyCells.size();
-        int row = emptyCells[randomIndex].first;
-        int col = emptyCells[randomIndex].second;
-
-        int value = solutionBoard[row][col];
-
-        board[row][col] = value;
-        tableWidget->item(row, col)->setText(QString::number(value));
-        tableWidget->item(row, col)->setForeground(QBrush(Qt::blue));
-        
-        hintCounter++;
     }
-    else {
-        QMessageBox messageBox;
-        messageBox.setText("No more hints.");
-        messageBox.setStandardButtons(QMessageBox::Ok);
-        messageBox.setFixedSize(400, 200);
-        messageBox.exec();
+    if (emptyCells.empty()) {
+        QMessageBox::information(this, "No empty cells", "Board is already full!");
+        return;
     }
+    int randomIndex = rand() % emptyCells.size();
+    int row = emptyCells[randomIndex].first;
+    int col = emptyCells[randomIndex].second;
+    int solVal = m_logic.getSolutionValue(row, col);
+    m_logic.setValue(row, col, solVal);
+    QTableWidgetItem* item = tableWidget->item(row, col);
+    item->setText(QString::number(solVal));
+    item->setForeground(QBrush(Qt::blue));
+    hintCounter++;
 }

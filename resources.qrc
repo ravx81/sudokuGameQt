@@ -3,5 +3,6 @@
         <file>hint.png</file>
         <file>rubber.png</file>
         <file>undo.png</file>
+        <file>background.png</file>
     </qresource>
 </RCC>
