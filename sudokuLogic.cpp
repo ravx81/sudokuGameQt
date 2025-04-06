@@ -79,9 +79,9 @@ bool SudokuLogic::isValid(const std::array<std::array<int, 9>, 9>& board, int ro
 
     int startRow = row - row % 3;
     int startCol = col - col % 3;
-    for (int r = 0; r < 3; r++) {
-        for (int c = 0; c < 3; c++) {
-            if (board[startRow + r][startCol + c] == num) {
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            if (board[startRow + row][startCol + col] == num) {
                 return false;
             }
         }
@@ -89,18 +89,18 @@ bool SudokuLogic::isValid(const std::array<std::array<int, 9>, 9>& board, int ro
     return true;
 }
 
-bool SudokuLogic::solveBoard(std::array<std::array<int, 9>, 9>& brd)
+bool SudokuLogic::solveBoard(std::array<std::array<int, 9>, 9>& board)
 {
     for (int row = 0; row < 9; row++) {
         for (int col = 0; col < 9; col++) {
-            if (brd[row][col] == 0) {
+            if (board[row][col] == 0) {
                 for (int num = 1; num <= 9; num++) {
-                    if (isValid(brd, row, col, num)) {
-                        brd[row][col] = num;
-                        if (solveBoard(brd)) {
+                    if (isValid(board, row, col, num)) {
+                        board[row][col] = num;
+                        if (solveBoard(board)) {
                             return true;
                         }
-                        brd[row][col] = 0;
+                        board[row][col] = 0;
                     }
                 }
                 return false;

@@ -32,10 +32,10 @@ private:
     std::array<std::array<int, 9>, 9> m_solution; 
     int m_mistakes = 0;
 
-    bool fillBoard(std::array<std::array<int, 9>, 9>& brd);
-    void prepareBoard(std::array<std::array<int, 9>, 9>& brd, int quantityOfFreeField);
+    bool fillBoard(std::array<std::array<int, 9>, 9>& board);
+    void prepareBoard(std::array<std::array<int, 9>, 9>& board, int quantityOfFreeField);
 
-    bool solveBoard(std::array<std::array<int, 9>, 9>& brd);
+    bool solveBoard(std::array<std::array<int, 9>, 9>& board);
 
-    bool isValid(const std::array<std::array<int, 9>, 9>& brd, int row, int col, int num) const;
+    bool isValid(const std::array<std::array<int, 9>, 9>& board, int row, int col, int num) const;
 };
