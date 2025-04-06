@@ -1,58 +1,84 @@
 QMainWindow {
-    background-image: url(:/background.png);
+    background-image: url(background.png);
     background-repeat: no-repeat;
     background-position: top left;
     background-size: cover;
 }
 
-QTableWidget, QTableView {
-    background-color: rgba(255, 255, 255, 0);
-}
-
-QPushButton#clearButton {
-    border-image: url(:/images/rubber.png) 0 0 0 0 stretch stretch;
-}
-
-QPushButton#undoButton {
-    border-image: url(:/images/undo.png) 0 0 0 0 stretch stretch;
-}
-
-QPushButton#hintButton {
-    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;
-}
 
 QPushButton#newGameButton {
+    min-width: 250px;
+    min-height: 50px;
+    max-width: 250px;
+    max-height: 50px;
     background-color: #85c1e9;
     color: #FFFFFF;
     font-weight: bold;
     border: none;
     border-radius: 5px;
 }
-
 QPushButton#newGameButton:hover {
     background-color: #B9DAEB;
 }
 
+QPushButton#clearButton {
+    min-width: 60px;
+    min-height: 70px;
+    max-width: 60px;
+    max-height: 70px;
+    border-image: url(:/images/rubber.png) 0 0 0 0 stretch stretch;
+}
+QPushButton#undoButton {
+    min-width: 60px;
+    min-height: 70px;
+    max-width: 60px;
+    max-height: 70px;
+    border-image: url(:/images/undo.png) 0 0 0 0 stretch stretch;
+}
+QPushButton#hintButton {
+    min-width: 60px;
+    min-height: 70px;
+    max-width: 60px;
+    max-height: 70px;
+    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;
+}
+
 QPushButton#levelButton {
+    min-width: 75px;
+    min-height: 35px;
+    max-width: 75px;
+    max-height: 35px;
     background-color: #5dade2;
     color: #FFFFFF;
     font-weight: bold;
     border: none;
     border-radius: 5px;
 }
-
 QPushButton#levelButton:hover {
     background-color: #B9DAEB;
 }
 
 QPushButton#keypadButton {
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
     background-color: #3498db;
     color: #FFFFFF;
     font-weight: bold;
     border: none;
     border-radius: 5px;
 }
-
 QPushButton#keypadButton:hover {
     background-color: #B9DAEB;
+}
+
+QLabel#errorLabel {
+    font-size: 10pt;
+    color: red;
+    font-weight: bold;
+}
+QLabel#labelTime {
+    font-size: 10pt;
+    font-weight: bold;
 }
