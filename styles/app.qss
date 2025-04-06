@@ -1,0 +1,58 @@
+QMainWindow {
+    background-image: url(:/background.png);
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-size: cover;
+}
+
+QTableWidget, QTableView {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+QPushButton#clearButton {
+    border-image: url(:/images/rubber.png) 0 0 0 0 stretch stretch;
+}
+
+QPushButton#undoButton {
+    border-image: url(:/images/undo.png) 0 0 0 0 stretch stretch;
+}
+
+QPushButton#hintButton {
+    border-image: url(:/images/hint.png) 0 0 0 0 stretch stretch;
+}
+
+QPushButton#newGameButton {
+    background-color: #85c1e9;
+    color: #FFFFFF;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+
+QPushButton#newGameButton:hover {
+    background-color: #B9DAEB;
+}
+
+QPushButton#levelButton {
+    background-color: #5dade2;
+    color: #FFFFFF;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+
+QPushButton#levelButton:hover {
+    background-color: #B9DAEB;
+}
+
+QPushButton#keypadButton {
+    background-color: #3498db;
+    color: #FFFFFF;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+
+QPushButton#keypadButton:hover {
+    background-color: #B9DAEB;
+}
