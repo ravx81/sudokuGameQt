@@ -28,7 +28,7 @@ The interface includes difficulty levels, undo functionality, and a mistake coun
 
 ```bash
 # Clone the project
-git clone https://github.com/your-username/sudoku-game.git
+git clone https://github.com/ravx81/sudokuGameQt.git
 cd sudoku-game
 
 # Create a build directory
